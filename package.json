@@ -3,14 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://fern-123.github.io/u_ext",
+  "homepage": "https://ferndev.space/react",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist -r https://fern-123.github.io/u_ext"
+    "deploy": "gh-pages -d dist -r https://ferndev.space/react"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
