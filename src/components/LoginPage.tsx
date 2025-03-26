@@ -48,7 +48,8 @@ const LoginPage: React.FC = () => {
       localStorage.setItem("refreshToken", response.data.refresh);
 
       // Navigate to the unit extensions page after successful login.
-      navigate("/react/u_ext");
+      //navigate("/react/u_ext");
+      navigate ("/u_ext/u_ext")
     } catch (err) {
       // Handle Axios errors specifically for failed requests.
       if (axios.isAxiosError(err)) {
@@ -85,7 +86,8 @@ const LoginPage: React.FC = () => {
       localStorage.setItem("refreshToken", response.data.refresh);
 
       // Navigate to the unit extensions page after successful login.
-      navigate("/react/u_ext");
+      //navigate("/react/u_ext");
+      navigate("/u_ext/u_ext")
     } catch (err) {
       // Handle Axios errors specifically for failed requests.
       if (axios.isAxiosError(err)) {

@@ -10,13 +10,16 @@ const App: React.FC = () => {
             <Routes>
                 {/* Redirect to DataTable if authenticated, else go to LoginPage */}
                 <Route
-                    path="/react"
+                    //path="/react"
+                    path="/u_ext"
                     element={<LoginPage />}
                     //element={isAuthenticated ? <Navigate to="/u_ext" /> : <LoginPage />}
                 />
                 <Route
-                    path="/react/u_ext"
-                    element={isAuthenticated ? <DataTable /> : <Navigate to="/react/u_ext" />}
+                    //path="/react/u_ext"
+                    path="/u_ext/u_ext"
+                    //element={isAuthenticated ? <DataTable /> : <Navigate to="/react/u_ext" />}
+                    element={isAuthenticated ? <DataTable /> : <Navigate to="/u_ext/u_ext" />}
                 />
             </Routes>
         </Router>
