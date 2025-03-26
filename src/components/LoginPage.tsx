@@ -49,7 +49,7 @@ const LoginPage: React.FC = () => {
 
       // Navigate to the unit extensions page after successful login.
       navigate("/react/u_ext");
-      catch (err) {
+    } catch (err) {
       // Handle Axios errors specifically for failed requests.
       if (axios.isAxiosError(err)) {
         const axiosError = err as AxiosError;
