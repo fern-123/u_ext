@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
+ // https://vite.dev/config/
 export default defineConfig({
-  base:"/u_ext/",
+  base:"/react/",
   plugins: [react()],
-  //server: {
-  //  port:2000,
-  //}
+  server: {
+    port:2000,
+  }
 });
