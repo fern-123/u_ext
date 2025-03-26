@@ -3,11 +3,14 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "homepage": "https://ferndev.space/react",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist -r https://ferndev.space/react"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -16,7 +19,6 @@
     "@mui/material": "^6.4.8",
     "@mui/x-data-grid": "^7.28.1",
     "axios": "^1.8.4",
-    "gh-pages": "^6.3.0",
     "jwt-decode": "^4.0.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
@@ -30,6 +32,8 @@
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.19",
+    "eslint-plugin-react-x": "^1.38.0",
+    "gh-pages": "^6.3.0",
     "globals": "^15.15.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.24.1",
