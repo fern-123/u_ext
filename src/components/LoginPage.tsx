@@ -35,13 +35,17 @@ const LoginPage: React.FC = () => {
 
   // Function to handle the click event for the login button.
   const handleClick = async () => {
+    console.log("Login button clicked."); // Log button click
     setLoading(true); // Set loading to true to show the loading indicator.
     try {
+      console.log("Sending login request with:", { username, password }); // Log input data
       // Send a POST request to the API with the username and password.
       const response: AxiosResponse<TokenResponse> = await axios.post(
         "https://msicu.org/api/token",
         { username, password }
       );
+
+      console.log("Login successful. Tokens received:", response.data); // Log received tokens
 
       // Store the access and refresh tokens in local storage.
       localStorage.setItem("accessToken", response.data.access);
@@ -50,35 +54,44 @@ const LoginPage: React.FC = () => {
       // Navigate to the unit extensions page after successful login.
       navigate("/react/u_ext");
     } catch (err) {
+      console.error("Login failed:", err); // Log the error
       // Handle Axios errors specifically for failed requests.
       if (axios.isAxiosError(err)) {
         const axiosError = err as AxiosError;
         if (axiosError.response) {
-          // Display detailed error messages from the response data.
+          console.error(
+            "API returned an error:",
+            axiosError.response.data
+          ); // Log server response
           setError(`Login failed: ${JSON.stringify(axiosError.response.data)}`);
         } else {
-          // Display a generic network error message.
+          console.error("Network error occurred."); // Log network errors
           setError("Login failed: Network error.");
         }
       } else {
-        // Handle unexpected errors with a generic message.
+        console.error("Unexpected error:", err); // Log unexpected errors
         setError("An unexpected error occurred.");
       }
     } finally {
       setLoading(false); // Reset the loading state after the request completes.
+      console.log("Login request completed."); // Log completion
     }
   };
 
   // Function to handle the form submission event for logging in.
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault(); // Prevent the default form submission behavior.
+    console.log("Form submitted."); // Log form submission
     setError(null); // Clear any existing error messages before submission.
     try {
+      console.log("Sending login request with:", { username, password }); // Log input data
       // Send a POST request to the API with the username and password.
       const response: AxiosResponse<TokenResponse> = await axios.post(
         "https://msicu.org/api/token",
         { username, password }
       );
+
+      console.log("Login successful. Tokens received:", response.data); // Log received tokens
 
       // Store the access and refresh tokens in local storage.
       localStorage.setItem("accessToken", response.data.access);
@@ -86,40 +99,41 @@ const LoginPage: React.FC = () => {
 
       // Navigate to the unit extensions page after successful login.
       navigate("/react/u_ext");
-      
     } catch (err) {
+      console.error("Login failed:", err); // Log the error
       // Handle Axios errors specifically for failed requests.
       if (axios.isAxiosError(err)) {
         const axiosError = err as AxiosError;
 
         if (axiosError.response) {
-          // Display detailed error messages from the response data.
+          console.error(
+            "API returned an error:",
+            axiosError.response.data
+          ); // Log server response
           setError(`Login failed: ${JSON.stringify(axiosError.response.data)}`);
         } else {
-          // Display a generic network error message.
+          console.error("Network error occurred."); // Log network errors
           setError("Login failed: Network error.");
         }
       } else {
-        // Handle unexpected errors with a generic message.
+        console.error("Unexpected error:", err); // Log unexpected errors
         setError("An unexpected error occurred.");
       }
     } finally {
       setLoading(false); // Reset the loading state after the request completes.
+      console.log("Login request completed."); // Log completion
     }
   };
 
   // Render the login form and display the error messages if present.
   return (
     <Box
-      // Style the container to center the content and set background and padding.
       display="flex"
       flexDirection="column"
       alignItems="center"
       minHeight="100vh"
       padding={3}
-      //bgcolor="#f5f5f5"
       sx={{
-        // Define responsive margin values based on screen size.
         m: { xs: 2, sm: 3, md: 5 },
       }}
     >
@@ -136,33 +150,30 @@ const LoginPage: React.FC = () => {
           </Typography>
         )}
         <TextField
-          // Input field for username
           label="Username"
           value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          onChange={(e) => {
+            console.log("Username changed to:", e.target.value); // Log username input
+            setUsername(e.target.value);
+          }}
           fullWidth
           margin="normal"
           autoFocus
           placeholder="Username"
-          sx={{
-             fontSize: "18px", // Customize cell font size
-          }}
         />
         <TextField
-          // Input field for password
           label="Password"
           type="password"
           value={password}
-          onChange={(e) => setPassword(e.target.value)}
+          onChange={(e) => {
+            console.log("Password changed to:", e.target.value); // Log password input
+            setPassword(e.target.value);
+          }}
           fullWidth
           margin="normal"
           placeholder="Password"
-          sx={{
-            fontSize: "18px", // Customize cell font size
-         }}
         />
         <Button
-          // Submit button for login action
           variant="contained"
           color="primary"
           fullWidth
@@ -171,7 +182,7 @@ const LoginPage: React.FC = () => {
           onClick={handleClick}
           disabled={loading}
         >
-          Login
+          {loading ? "Loading..." : "Login"}
         </Button>
       </form>
     </Box>

@@ -1,51 +1,74 @@
-// Import React and various hooks for state management and side effects.
+/*
+This React component, DataTable, displays a table of unit extensions.
+ It fetches data from a specified API endpoint using Axios, handling 
+ authentication with access and refresh tokens stored in local storage.
+  The component checks if the access token is expired; if so,
+   it attempts to refresh it using the refresh token. If both tokens are expired,
+    it navigates the user to the "/react/" route (login page).
+
+The component uses Material-UI components for styling, including Paper,
+ Typography, and TextField for a search input. It utilizes the DataGrid
+  component from @mui/x-data-grid to display the fetched data in a sortable
+   and paginated table. Users can search the data, and the table's columns 
+   can be sorted. The component also hides the "ID" column by default
+*/
+
+// Import React and necessary hooks for state management and side effects
 import React, { useState, useEffect, useCallback } from "react";
 
-// Import MUI components for UI styling.
+// Import Material-UI components for styling
 import { Box, TextField, Typography, Paper } from "@mui/material";
 
-// Import DataGrid and related components for displaying and managing tabular data.
-import { DataGrid, GridColDef, GridSortModel } from "@mui/x-data-grid";
+// Import DataGrid and related components for tabular data display
+import {
+  DataGrid,
+  GridColDef,
+  GridSortModel,
+  GridColumnVisibilityModel,
+} from "@mui/x-data-grid";
 
-// Import the useNavigate hook for navigation between routes.
+// Import the useNavigate hook for route navigation
 import { useNavigate } from "react-router-dom";
 
-// Import Axios for making HTTP requests.
+// Import Axios for HTTP requests
 import axios from "axios";
 
-// Define a TypeScript interface for the structure of data rows.
+// Define the structure for DataRow used in the table
 interface DataRow {
   id: number;
   location_name: string;
   contact_number: string;
 }
 
-// Define a TypeScript interface for tokens used in authentication.
+// Define a Token interface for access and refresh tokens
 interface Token {
   accessToken: string;
   refreshToken: string;
 }
 
-// Define the DataTable functional component.
+// Define the DataTable functional component
 const DataTable: React.FC = () => {
-  // Initialize state for storing and managing fetched data.
+  // State for data retrieved from the API
   const [data, setData] = useState<DataRow[]>([]);
-
-  // Initialize state for storing and managing filtered data.
   const [filteredData, setFilteredData] = useState<DataRow[]>([]);
-
-  // Initialize state for managing the search query entered by the user.
   const [search, setSearch] = useState<string>("");
 
-  // Initialize state for handling sorting of the DataGrid.
+  // Sorting state for the DataGrid
   const [sortModel, setSortModel] = useState<GridSortModel>([
     { field: "location_name", sort: "asc" },
   ]);
 
-  // Create a navigate function for routing within the app.
+  // State for managing column visibility
+  const [columnVisibilityModel, setColumnVisibilityModel] =
+    useState<GridColumnVisibilityModel>({
+      id: false, // Hide the "ID" column
+      location_name: true,
+      contact_number: true,
+    });
+
   const navigate = useNavigate();
 
-  // Decode the JWT token to extract the expiration time.
+  // Decode JWT token and extract expiration time
   const decodeToken = useCallback((token: string): number | null => {
     try {
       const payload = JSON.parse(atob(token.split(".")[1]));
@@ -55,7 +78,7 @@ const DataTable: React.FC = () => {
     }
   }, []);
 
-  // Check if a token is expired by comparing its expiration time with the current time.
+  // Check if a token has expired
   const isTokenExpired = useCallback(
     (token: string): boolean => {
       const expirationTime = decodeToken(token);
@@ -64,24 +87,23 @@ const DataTable: React.FC = () => {
     [decodeToken]
   );
 
-  // Refresh the access token using the refresh token via an API call.
+  // Refresh access token using refresh token
   const refreshAccessToken = useCallback(
     async (refreshToken: string): Promise<string | null> => {
       try {
         const response = await axios.post<{ accessToken: string }>(
-          "https://msicu.org/api/token/refresh",
-          { refreshToken }
+          "https://msicu.org/api/token/refresh/",
+          { refresh: refreshToken }
         );
         return response.data.accessToken;
-      } catch (error) {
-        console.error("Error refreshing token:", error);
+      } catch {
         return null;
       }
     },
     []
   );
 
-  // Fetch data from the API using the access token for authentication.
+  // Fetch data from API
   const fetchData = useCallback(async (accessToken: string) => {
     try {
       const response = await axios.get<DataRow[]>(
@@ -92,12 +114,12 @@ const DataTable: React.FC = () => {
       );
       setData(response.data);
       setFilteredData(response.data);
-    } catch (error) {
-      console.error("Error fetching data:", error);
+    } catch {
+      console.error("Error fetching data.");
     }
   }, []);
 
-  // Validate tokens and decide whether to refresh the token or fetch data directly.
+  // Validate tokens and fetch data
   const checkTokensAndFetchData = useCallback(async () => {
     const tokens: Token = {
       accessToken: localStorage.getItem("accessToken") || "",
@@ -108,7 +130,6 @@ const DataTable: React.FC = () => {
       isTokenExpired(tokens.accessToken) &&
       isTokenExpired(tokens.refreshToken)
     ) {
-      console.error("Both tokens have expired. Please log in.");
       navigate("/react/");
     } else if (isTokenExpired(tokens.accessToken)) {
       const newAccessToken = await refreshAccessToken(tokens.refreshToken);
@@ -116,7 +137,6 @@ const DataTable: React.FC = () => {
         localStorage.setItem("accessToken", newAccessToken);
         fetchData(newAccessToken);
       } else {
-        console.error("Error refreshing access token. Please log in.");
         navigate("/react/");
       }
     } else {
@@ -124,12 +144,12 @@ const DataTable: React.FC = () => {
     }
   }, [fetchData, isTokenExpired, navigate, refreshAccessToken]);
 
-  // Trigger data validation and fetching when the component mounts.
+  // Trigger token validation and data fetch on component mount
   useEffect(() => {
     checkTokensAndFetchData();
   }, [checkTokensAndFetchData]);
 
-  // Filter the data based on the search query entered by the user.
+  // Handle search input and filter data
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     const query = event.target.value.toLowerCase();
     setSearch(query);
@@ -142,32 +162,15 @@ const DataTable: React.FC = () => {
     setFilteredData(filtered);
   };
 
-  // Define the columns to be displayed in the DataGrid.
+  // Define the columns
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 10, sortable: true },
-    { 
-      field: "location_name", 
-      headerName: "Name", 
-      width: 250, 
-      sortable: true,
-    },
-    {
-      field: "contact_number",
-      headerName: "Extension #",
-      width: 250
-      ,
-      sortable: true,
-      },
-  ];  
-  const [columnVisibilityModel, setColumnVisibilityModel] = useState<Record<string, boolean>>({
-    id: false, // Hide the "id" column
-  });
-  
-  
-  // Render the DataTable component.
+    { field: "id", headerName: "ID", width: 100 },
+    { field: "location_name", headerName: "Location Name", width: 150 },
+    { field: "contact_number", headerName: "Contact Number", width: 150 },
+  ];
+
   return (
-    <Paper> 
-      {/* Display the title at the top of the page */}
+    <Paper>
       <Typography
         variant="h4"
         color="primary"
@@ -177,7 +180,6 @@ const DataTable: React.FC = () => {
         Unit Extensions
       </Typography>
 
-      {/* Display the search bar */}
       <Box sx={{ display: "flex", justifyContent: "center", marginBottom: 2 }}>
         <TextField
           label="Search"
@@ -188,13 +190,13 @@ const DataTable: React.FC = () => {
         />
       </Box>
 
-      {/* Display the DataGrid */}
       <Box
         sx={{
           display: "flex",
+          overflowX: "auto",
           justifyContent: "center",
           "& .MuiDataGrid-cell": {
-            fontSize: "18px", // Customize cell font size
+            fontSize: "18px",
           },
         }}
       >
@@ -202,36 +204,20 @@ const DataTable: React.FC = () => {
           <DataGrid
             rows={filteredData}
             columns={columns}
-            sx={{
-              margin: 0, // Adds margin around the DataGrid (spacing unit from the theme)
-              padding: 4
-              , // Adds padding inside the DataGrid container
-              "& .MuiDataGrid-root": {
-                border: "none", // Removes the border around the entire grid
-              },
-              "& .MuiDataGrid-footerContainer": {
-                borderTop: "none", // Removes the border at the footer
-              },
-              
-            }}
-            initialState={{
-              pagination: {
-                paginationModel: {
-                  pageSize: 100
-                },
-              },
-            }}
             pageSizeOptions={[15, 25, 50, 100]}
             pagination
             sortModel={sortModel}
             onSortModelChange={(newSortModel) => setSortModel(newSortModel)}
+            disableColumnMenu
             disableRowSelectionOnClick
             columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={(newModel) => setColumnVisibilityModel (newModel)}
+            onColumnVisibilityModelChange={(newModel) =>
+              setColumnVisibilityModel(newModel)
+            }
           />
         </div>
       </Box>
-    </Paper> 
+    </Paper>
   );
 };
 
